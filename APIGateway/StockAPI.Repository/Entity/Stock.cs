@@ -18,6 +18,7 @@ namespace StockAPI.Repository.Entity
         public int Amount { get; set; }
         public double SalePrices { get; set; }
         public double AvaragePrices { get; set; }
+        public ICollection<StockTransaction> StockTransactions { get; set; }
 
     }
 }
