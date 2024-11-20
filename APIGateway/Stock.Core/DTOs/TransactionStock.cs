@@ -1,5 +1,4 @@
-﻿using Helper.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,5 +15,11 @@ namespace StockAPI.Models
         public int Amount { get; set; }
         public double Price { get; set; }
         public PriceType PriceType { get; set; }
+    }
+    public enum PriceType
+    {
+        TURKISH_LIRA = 0,
+        DOLLAR = 1,
+        EURO = 2
     }
 }

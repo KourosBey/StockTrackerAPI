@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using StockAPI.Repository.Entity;
+using Stock.Core.Models.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +10,14 @@ namespace StockAPI.Repository.Context
 {
     public class STAContext : DbContext
     {
-        public DbSet<Stock> Stocks { get; set; }
+        public DbSet<Stok> Stocks { get; set; }
         public DbSet<StockTransaction> StockTransactions { get; set; }
 
         public STAContext(DbContextOptions<STAContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Stock>(e =>
+            modelBuilder.Entity<Stok>(e =>
             {
                 e.HasKey(e => e.Id);
 

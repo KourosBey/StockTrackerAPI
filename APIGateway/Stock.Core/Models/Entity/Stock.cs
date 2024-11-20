@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StockAPI.Repository.Entity
+namespace Stock.Core.Models.Entity
 {
-    public class Stock : BaseEntity
+    public class Stok : BaseEntity
     {
         public Guid UID { get; set; }
         public string Name { get; set; } = "Stok Adı giriniz";

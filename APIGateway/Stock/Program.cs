@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using StockAPI.Services.Middleware;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +11,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-
+string connectionString = builder.Configuration.GetConnectionString("Connection");
+builder.Services.AddDbContextService(builder.Configuration.GetConnectionString("Connection")!.ToString());
 
 var app = builder.Build();
 
