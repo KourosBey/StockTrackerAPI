@@ -26,7 +26,7 @@ namespace StockAPI.Services.ServiceImplementation
             throw new NotImplementedException();
         }
 
-        public TransactionDTO GetById(Guid id)
+        public BaseResponse<TransactionDTO> GetById(Guid id)
         {
             throw new NotImplementedException();
         }

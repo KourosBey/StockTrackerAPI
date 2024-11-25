@@ -10,7 +10,7 @@ namespace Stock.Core.Interfaces
     public interface IGenericInterface<T>
     {
         #region Base CRUD
-        T GetById(Guid id);
+        BaseResponse<T> GetById(Guid id);
         BaseResponse AddProduct(T Data);
         BaseResponse UpdateData(T Data);
         BaseResponse DeleteProduct(Guid id);

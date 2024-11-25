@@ -33,7 +33,7 @@ namespace StockAPI.Repository.RepositoryImp
             throw new NotImplementedException();
         }
 
-        public TransactionStock GetById(Guid id)
+        public BaseResponse<TransactionStock> GetById(Guid id)
         {
             throw new NotImplementedException();
         }

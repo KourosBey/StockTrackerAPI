@@ -11,14 +11,14 @@ namespace Stock.Core.DTOs
         public string Description { get; set; }
         public bool IsSuccess { get; set; }
         public T Data { get; set; }
-        public BaseResponse<T> Success(T Data) => new BaseResponse<T> { Data = Data, IsSuccess = true };
-        public BaseResponse<T> Failure(string description) => new BaseResponse<T> { Description = description, IsSuccess = false };
+        public static BaseResponse<T> Success(T Data) => new BaseResponse<T> { Data = Data, IsSuccess = true };
+        public static BaseResponse<T> Failure(string description) => new BaseResponse<T> { Description = description, IsSuccess = false };
     }
     public class BaseResponse
     {
         public string Description { get; set; }
         public bool IsSuccess { get; set; }
-        public BaseResponse Success => new BaseResponse { IsSuccess = true };
-        public BaseResponse Failure(string description) => new BaseResponse { Description = description, IsSuccess = false };
+        public static BaseResponse Success() => new BaseResponse { IsSuccess = true };
+        public static BaseResponse Failure(string description) => new BaseResponse { Description = description, IsSuccess = false };
     }
 }
