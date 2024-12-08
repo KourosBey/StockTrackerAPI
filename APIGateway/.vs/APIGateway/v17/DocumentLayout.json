@@ -38,8 +38,7 @@
               "RelativeToolTip": "Stock\\Program.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAABIAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-08T19:05:16.885Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-08T19:05:16.885Z"
             },
             {
               "$type": "Document",
@@ -49,7 +48,7 @@
               "RelativeDocumentMoniker": "Stock\\Controllers\\StockController.cs",
               "ToolTip": "C:\\Users\\mhani\\OneDrive\\Masa\u00FCst\u00FC\\frontend\\StockTrackerAPI\\APIGateway\\Stock\\Controllers\\StockController.cs",
               "RelativeToolTip": "Stock\\Controllers\\StockController.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAIA0wBcAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwBUAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-08T18:47:13.001Z",
               "EditorCaption": ""
@@ -64,8 +63,7 @@
               "RelativeToolTip": "StockAPI.Repository\\Context\\STAContext.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-08T18:43:00.106Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-08T18:43:00.106Z"
             },
             {
               "$type": "Document",
@@ -77,8 +75,7 @@
               "RelativeToolTip": "Stock\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-12-08T18:42:51.405Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-08T18:42:51.405Z"
             }
           ]
         }

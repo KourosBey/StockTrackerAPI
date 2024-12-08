@@ -7,7 +7,7 @@ class StockService {
 
     async getAllStocks() {
         try {
-            const response = await axios.get(`${this.BASE_URL}/stocks`);
+            const response = await axios.get(`${this.BASE_URL}/Stock/get-stocks?page=0&size=20`);
             return response.data;
         } catch (error) {
             console.error('Error fetching stocks:', error);

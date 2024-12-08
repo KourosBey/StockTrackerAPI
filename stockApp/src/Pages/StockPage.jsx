@@ -53,9 +53,16 @@ const StockPage = () => {
         setLoading(true);
         try {
             const response = await StockService.getAllStocks();
-            setStocks(response);
-            setFilteredStocks(response);
+            if (response["isSuccess"] == "true") {
+                setStocks(response["data"]);
+                setFilteredStocks(response);
+
+            }
+            else {
+                toast.error(response["description"]);
+            }
         } catch (error) {
+
             toast.error('Data dönerken hata oluştu', error.message);
         } finally {
             setLoading(false);
