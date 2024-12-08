@@ -1,0 +1,78 @@
+{
+  "stocks": [
+    {
+      "id": "0b5f",
+      "Name": "deneme34",
+      "Barcode": "254856",
+      "Code": "512346",
+      "Description": "denemeürünüdür",
+      "Amount": 100,
+      "SalePrices": "12.00",
+      "avaragePrices": "10.00"
+    },
+    {
+      "id": "694e",
+      "Name": "deneme21",
+      "Barcode": "321654",
+      "Code": "987654321",
+      "Description": "deneme25525",
+      "Amount": 50,
+      "SalePrices": "20.00",
+      "avaragePrices": "15.00"
+    },
+    {
+      "id": "9876",
+      "Name": "deneme123",
+      "Barcode": "123456",
+      "Code": "654321",
+      "Description": "deneme",
+      "Amount": 73,
+      "SalePrices": "15.00",
+      "avaragePrices": "10.00"
+    },
+    {
+      "id": "0749",
+      "Name": "deneme567",
+      "Barcode": "789456",
+      "Code": "321654987",
+      "Description": "deneme",
+      "Amount": 120,
+      "SalePrices": "18.00",
+      "avaragePrices": "15.00"
+    },
+    {
+      "id": "5678",
+      "Name": "deneme987",
+      "Barcode": "987654321",
+      "Code": "123456789",
+      "Description": "deneme",
+      "Amount": 150,
+      "SalePrices": "10.00",
+      "avaragePrices": "8.00"
+    },
+    {
+      "id": "4567",
+      "Name": "deneme789",
+      "Barcode": "321654987",
+      "Code": "987654321",
+      "Description": "deneme",
+      "Amount": 100,
+      "SalePrices": "20.00",
+      "avaragePrices": "15.00"
+    },
+    {
+      "id": "8b4b",
+      "Name": "deeeneeemeee25",
+      "Barcode": "4235461",
+      "Code": "45321986",
+      "Description": "ExProd25",
+      "Amount": 10,
+      "SalePrices": "606.00",
+      "avaragePrices": "606.00"
+    }
+  ],
+  "metadata": {
+    "isSuccess": true,
+    "Description": null
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "ye3aKZdZ994=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\mhani\\OneDrive\\Masaüstü\\frontend\\StockTrackerAPI\\APIGateway\\Stock.Core\\Stock.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mhani\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\7.0.20\\microsoft.windowsdesktop.app.ref.7.0.20.nupkg.sha512",
+    "C:\\Users\\mhani\\.nuget\\packages\\microsoft.netcore.app.ref\\7.0.20\\microsoft.netcore.app.ref.7.0.20.nupkg.sha512",
+    "C:\\Users\\mhani\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\7.0.20\\microsoft.aspnetcore.app.ref.7.0.20.nupkg.sha512"
+  ],
+  "logs": []
+}
