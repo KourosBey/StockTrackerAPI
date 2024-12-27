@@ -10,7 +10,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const StockPage = () => {
     const [stocks, setStocks] = useState([]);
@@ -18,31 +18,18 @@ const StockPage = () => {
     const [searchValue, setSearchValue] = useState('');
     const [filteredStocks, setFilteredStocks] = useState([]);
     const [openAddStock, setOpenAddStock] = useState(false);
-    const [openEditStock, setOpenEditStock] = useState(false);
     const [openSellStock, setOpenSellStock] = useState(false);
+    const [sellStock, setSellStock] = useState({ stock_id: '', amount: 0 });
+    const [editStock, setEditStock] = useState(null); // Düzenleme için seçilen stok
+    const [openEditStock, setOpenEditStock] = useState(false);
 
     const [newStock, setNewStock] = useState({
-        Name: '',
-        Barcode: '',
-        Code: '',
-        Description: '',
-        Amount: '',
-        SalePrices: '',
-    });
-
-    const [editStock, setEditStock] = useState({
-        id: '',
-        Name: '',
-        Barcode: '',
-        Code: '',
-        Description: '',
-        Amount: '',
-        SalePrices: '',
-    });
-
-    const [sellStock, setSellStock] = useState({
-        stockId: '',
-        amountToSell: 0,
+        stockName: '',
+        stockBarcode: '',
+        stockCode: '',
+        stockDescription: '',
+        stockAmount: '',
+        stockPrice: '',
     });
 
     useEffect(() => {
@@ -53,17 +40,31 @@ const StockPage = () => {
         setLoading(true);
         try {
             const response = await StockService.getAllStocks();
-            if (response["isSuccess"] == "true") {
-                setStocks(response["data"]);
-                setFilteredStocks(response);
+            console.log("Backend Response:", response);
 
-            }
-            else {
-                toast.error(response["description"]);
+            if (response.isSuccess) {
+                toast.success('Stoklar başarıyla getirildi.');
+                const processedData = response.data.map(item => ({
+                    id: item.id,
+                    name: item.stockName || item.StockName || 'No Name',
+                    barcode: item.stockBarcode || item.StockBarcode || 'N/A',
+                    code: item.stockCode || 'N/A',
+                    description: item.stockDescription || 'No Description',
+                    amount: item.stockAmount || 0,
+                    salePrices: item.stockPrice || 0,
+                    avaragePrices: item.stockPrice || 0,
+                    createdTime: item.createdTime,
+                }));
+
+                console.log("Processed Data:", processedData);
+                setStocks(processedData);
+                setFilteredStocks(processedData);
+            } else {
+                toast.error(response.description || 'Stoklar getirilemedi.');
             }
         } catch (error) {
-
-            toast.error('Data dönerken hata oluştu', error.message);
+            console.error("Error fetching stocks:", error);
+            toast.error('Stoklar getirilemedi. Lütfen tekrar deneyin.');
         } finally {
             setLoading(false);
         }
@@ -75,32 +76,34 @@ const StockPage = () => {
 
     useEffect(() => {
         setFilteredStocks(
-            stocks.filter(stock =>
-                stock.Name.toLowerCase().includes(searchValue.toLowerCase())
+            stocks.filter(stock => stock.name &&
+                stock.name.toLowerCase().includes(searchValue.toLowerCase())
             )
         );
     }, [searchValue, stocks]);
 
     const handleAddStockOpen = () => setOpenAddStock(true);
-    const handleAddStockClose = () => setOpenAddStock(false);
+    const handleAddStockClose = () => {
+        setOpenAddStock(false);
+        setNewStock({
+            stockName: '',
+            stockBarcode: '',
+            stockCode: '',
+            stockDescription: '',
+            stockAmount: '',
+            stockPrice: '',
+        });
+    };
 
-    const handleEditStockOpen = (stock) => {
-        setEditStock(stock);
+    const handleEditStockOpen = (stockId) => {
+        const stockToEdit = stocks.find((stock) => stock.id === stockId);
+        setEditStock(stockToEdit);
         setOpenEditStock(true);
     };
 
-    const handleEditStockClose = () => setOpenEditStock(false);
-
-    const handleSellStockOpen = (stockId) => {
-        setSellStock({ stockId, amountToSell: 0 });
-        setOpenSellStock(true);
-    };
-
-    const handleSellStockClose = () => setOpenSellStock(false);
-
-    const handleAddStockChange = (e) => {
-        const { name, value } = e.target;
-        setNewStock({ ...newStock, [name]: value });
+    const handleEditStockClose = () => {
+        setEditStock(null);
+        setOpenEditStock(false);
     };
 
     const handleEditStockChange = (e) => {
@@ -108,100 +111,135 @@ const StockPage = () => {
         setEditStock({ ...editStock, [name]: value });
     };
 
-    const handleSellStockChange = (e) => {
-        setSellStock({ ...sellStock, amountToSell: parseInt(e.target.value, 10) || 0 });
+    const handleEditStockSubmit = async () => {
+        try {
+            await StockService.updateStock(editStock.id, editStock);
+            setStocks((prevStocks) =>
+                prevStocks.map((stock) =>
+                    stock.id === editStock.id ? editStock : stock
+                )
+            );
+            toast.success('Stok başarıyla güncellendi!');
+            handleEditStockClose();
+        } catch (error) {
+            console.error('Stok güncellenirken hata oluştu:', error);
+            toast.error('Stok güncellenirken bir hata oluştu.');
+        }
+    };
+
+    const handleAddStockChange = (e) => {
+        const { name, value } = e.target;
+        setNewStock({ ...newStock, [name]: value });
     };
 
     const handleAddStockSubmit = async () => {
         const stockToAdd = {
-            ...newStock,
-            Amount: parseInt(newStock.Amount, 10) || 0,
-            SalePrices: parseFloat(newStock.SalePrices).toFixed(2),
-            avaragePrices: parseFloat(newStock.SalePrices).toFixed(2),
+            stockName: newStock.stockName,
+            stockBarcode: newStock.stockBarcode,
+            stockCode: newStock.stockCode,
+            stockDescription: newStock.stockDescription,
+            stockAmount: parseInt(newStock.stockAmount, 10),
+            stockPrice: parseFloat(newStock.stockPrice),
         };
 
         try {
             await StockService.addNewStock(stockToAdd);
+            toast.success('Yeni stok başarıyla eklendi!');
             fetchStocks();
             handleAddStockClose();
-            toast.success('Yeni stok başarıyla eklendi')
         } catch (error) {
-            toast.error('Yeni stok eklenirken hata oluştu:', error);
+            console.error('Yeni stok eklenirken hata oluştu:', error);
+            toast.error('Yeni stok eklenirken bir hata oluştu.');
         }
     };
 
-    const handleEditStockSubmit = async () => {
-        const stockToUpdate = {
-            ...editStock,
-            Amount: parseInt(editStock.Amount, 10) || 0,
-            SalePrices: parseFloat(editStock.SalePrices).toFixed(2),
-        };
-
-        try {
-            await StockService.updateStock(editStock.id, stockToUpdate);
-            fetchStocks();
-            handleEditStockClose();
-            toast.success('Stok başarıyla güncellendi!');
-        } catch (error) {
-            toast.error('Stok güncellenirken hata oluştu:', error);
-        }
-    };
-
-    const handleSellStockSubmit = async () => {
-        const stockToSell = stocks.find(stock => stock.id === sellStock.stockId);
-
-        if (!stockToSell || stockToSell.Amount < sellStock.amountToSell) {
-            toast.error('Yeterli stok bulunmuyor!');
+    const hadleDeleteStock = async (stockId) => {
+        if (!window.confirm('Ürünü silmek istediğinize emin misiniz?')) {
             return;
         }
 
-        const updatedStock = {
-            ...stockToSell,
-            Amount: stockToSell.Amount - sellStock.amountToSell,
-        };
-
         try {
-            await StockService.updateStock(sellStock.stockId, updatedStock);
-            fetchStocks();
-            handleSellStockClose();
-            toast.success('Stok satıldı!');
-        } catch (error) {
-            toast.error('Satış sırasında hata oluştu:', error);
+            const response = await StockService.deleteStock(stockId);
+
+            if (response.isSuccess) {
+                setStocks((prevStocks) =>
+                    prevStocks.filter((stock) => stock.id !== stockId)
+                );
+                toast.success("Ürün başarıyla silindi");
+            } else {
+                const errorDescription = response.description || "Hata açıklaması mevcut değil.";
+                toast.error(`Silme işlemi başarısız: ${errorDescription}`);
+            }
+        } catch (err) {
+            console.error('Stok silinirken hata oluştu:', err);
+            toast.error('Silme işlemi sırasında bir hata oluştu.');
         }
     };
 
-    const handleDeleteStock = async (stockId) => {
-        if (!window.confirm('Bu stoğu silmek istediğinizden emin misiniz?')) return;
+    const handleSellStockOpen = (stockId) => {
+        setSellStock({ stock_id: stockId, amount: 0 });
+        setOpenSellStock(true);
+    };
+
+    const handleSellStockClose = () => {
+        setOpenSellStock(false);
+        setSellStock({ stock_id: '', amount: 0 });
+    };
+
+    const handleSellStockSubmit = async () => {
+        const stockToUpdate = stocks.find(stock => stock.id === sellStock.stock_id);
+
+        if (!stockToUpdate) {
+            alert('Stok bulunamadı!');
+            return;
+        }
+
+        if (stockToUpdate.amount < sellStock.amount) {
+            alert('Yeterli stok bulunmuyor!');
+            return;
+        }
+
+        const newAmount = stockToUpdate.amount - sellStock.amount;
+        const newAveragePrice = Number((
+            (stockToUpdate.avaragePrices * stockToUpdate.amount -
+                sellStock.amount * stockToUpdate.salePrices) /
+            newAmount
+        ).toFixed(2));
+
+        const updatedStock = {
+            ...stockToUpdate,
+            amount: newAmount,
+            avaragePrices: newAmount > 0 ? newAveragePrice : 0,
+        };
 
         try {
-            await StockService.deleteStock(stockId);
-            fetchStocks();
-            toast.success('Stok başarıyla silindi!');
+            await StockService.updateStock(sellStock.stock_id, updatedStock);
+            setStocks(prevStocks =>
+                prevStocks.map(stock =>
+                    stock.id === updatedStock.id ? updatedStock : stock
+                )
+            );
+            alert('Stok başarıyla güncellendi.');
+            handleSellStockClose();
         } catch (error) {
-            toast.error('Stok silinirken hata oluştu:', error);
+            console.error('Stok güncellenirken hata oluştu:', error);
         }
     };
 
     const columns = [
-        { field: 'Barcode', headerName: 'Barcode', width: 150 },
-        { field: 'Code', headerName: 'Code', width: 150 },
-        { field: 'Name', headerName: 'Name', width: 200 },
-        { field: 'Description', headerName: 'Description', width: 250 },
-        { field: 'Amount', headerName: 'Amount', width: 100 },
-        { field: 'SalePrices', headerName: 'Sale Price', width: 150 },
+        { field: 'barcode', headerName: 'Barcode', width: 150 },
+        { field: 'code', headerName: 'Code', width: 150 },
+        { field: 'name', headerName: 'Name', width: 200 },
+        { field: 'description', headerName: 'Description', width: 250 },
+        { field: 'amount', headerName: 'Amount', width: 100 },
+        { field: 'salePrices', headerName: 'Sale Price', width: 150 },
+        { field: 'avaragePrices', headerName: 'Average Price', width: 150 },
         {
             field: 'actions',
             headerName: 'Actions',
             width: 300,
             renderCell: (params) => (
                 <div style={{ display: 'flex', gap: '10px' }}>
-                    <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => handleEditStockOpen(params.row)}
-                    >
-                        Düzenle
-                    </Button>
                     <Button
                         variant="contained"
                         color="primary"
@@ -212,9 +250,16 @@ const StockPage = () => {
                     <Button
                         variant="contained"
                         color="error"
-                        onClick={() => handleDeleteStock(params.row.id)}
+                        onClick={() => hadleDeleteStock(params.row.id)}
                     >
                         Sil
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleEditStockOpen(params.row.id)}
+                    >
+                        Düzenle
                     </Button>
                 </div>
             ),
@@ -222,83 +267,86 @@ const StockPage = () => {
     ];
 
     return (
-        <div>
-            <Box display="flex" justifyContent="space-between" mb={2}>
+        <div style={{ width: '100%' }}>
+            <Box display="flex" alignItems="center" justifyContent="space-between" marginBottom={2}>
                 <TextField
-                    label="Ürün Ara"
+                    label="Ürün ismine göre ara"
+                    variant="outlined"
                     value={searchValue}
                     onChange={handleSearchChange}
+                    placeholder="Ürün adı girin"
                     fullWidth
                 />
                 <Button variant="contained" color="primary" onClick={handleAddStockOpen}>
                     Yeni Stok Ekle
                 </Button>
             </Box>
+
             <div style={{ height: 400 }}>
                 {loading ? (
-                    <div>Loading...</div>
+                    <LoadingSpinner size={60} message="Loading Stocks" />
                 ) : (
                     <DataGrid
                         rows={filteredStocks}
                         columns={columns}
                         pageSize={5}
+                        rowsPerPageOptions={[5, 10, 20]}
                         getRowId={(row) => row.id}
                     />
                 )}
             </div>
 
-            {/* Dialoglar */}
             <Dialog open={openAddStock} onClose={handleAddStockClose}>
                 <DialogTitle>Yeni Stok Ekle</DialogTitle>
                 <DialogContent>
                     <TextField
                         margin="dense"
                         label="Name"
-                        name="Name"
+                        name="stockName"
                         fullWidth
-                        value={newStock.Name}
+                        value={newStock.stockName}
                         onChange={handleAddStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Barcode"
-                        name="Barcode"
+                        name="stockBarcode"
                         fullWidth
-                        value={newStock.Barcode}
+                        value={newStock.stockBarcode}
                         onChange={handleAddStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Code"
-                        name="Code"
+                        name="stockCode"
                         fullWidth
-                        value={newStock.Code}
+                        value={newStock.stockCode}
                         onChange={handleAddStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Description"
-                        name="Description"
+                        name="stockDescription"
                         fullWidth
-                        value={newStock.Description}
+                        value={newStock.stockDescription}
                         onChange={handleAddStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Amount"
-                        name="Amount"
+                        name="stockAmount"
                         type="number"
                         fullWidth
-                        value={newStock.Amount}
+                        value={newStock.stockAmount}
                         onChange={handleAddStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Sale Price"
-                        name="SalePrices"
+                        name="stockPrice"
                         type="number"
                         fullWidth
-                        value={newStock.SalePrices}
+                        value={newStock.stockPrice}
                         onChange={handleAddStockChange}
                     />
                 </DialogContent>
@@ -312,57 +360,81 @@ const StockPage = () => {
                 </DialogActions>
             </Dialog>
 
+            <Dialog open={openSellStock} onClose={handleSellStockClose}>
+                <DialogTitle>Stoktan Satış Yap</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        margin="dense"
+                        label="Satış Miktarı"
+                        type="number"
+                        value={sellStock.amount}
+                        onChange={(e) =>
+                            setSellStock({ ...sellStock, amount: Number(e.target.value) })
+                        }
+                        fullWidth
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleSellStockClose} color="secondary">
+                        İptal
+                    </Button>
+                    <Button onClick={handleSellStockSubmit} color="primary">
+                        Sat
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <Dialog open={openEditStock} onClose={handleEditStockClose}>
-                <DialogTitle>Stok Güncelle</DialogTitle>
+                <DialogTitle>Stok Düzenle</DialogTitle>
                 <DialogContent>
                     <TextField
                         margin="dense"
                         label="Name"
-                        name="Name"
+                        name="name"
                         fullWidth
-                        value={editStock.Name}
+                        value={editStock?.name || ''}
                         onChange={handleEditStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Barcode"
-                        name="Barcode"
+                        name="barcode"
                         fullWidth
-                        value={editStock.Barcode}
+                        value={editStock?.barcode || ''}
                         onChange={handleEditStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Code"
-                        name="Code"
+                        name="code"
                         fullWidth
-                        value={editStock.Code}
+                        value={editStock?.code || ''}
                         onChange={handleEditStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Description"
-                        name="Description"
+                        name="description"
                         fullWidth
-                        value={editStock.Description}
+                        value={editStock?.description || ''}
                         onChange={handleEditStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Amount"
-                        name="Amount"
+                        name="amount"
                         type="number"
                         fullWidth
-                        value={editStock.Amount}
+                        value={editStock?.amount || ''}
                         onChange={handleEditStockChange}
                     />
                     <TextField
                         margin="dense"
                         label="Sale Price"
-                        name="SalePrices"
+                        name="salePrices"
                         type="number"
                         fullWidth
-                        value={editStock.SalePrices}
+                        value={editStock?.salePrices || ''}
                         onChange={handleEditStockChange}
                     />
                 </DialogContent>
@@ -376,27 +448,6 @@ const StockPage = () => {
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={openSellStock} onClose={handleSellStockClose}>
-                <DialogTitle>Satış Yap</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        margin="dense"
-                        label="Satış Miktarı"
-                        type="number"
-                        fullWidth
-                        value={sellStock.amountToSell}
-                        onChange={handleSellStockChange}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleSellStockClose} color="secondary">
-                        İptal
-                    </Button>
-                    <Button onClick={handleSellStockSubmit} color="primary">
-                        Satış Yap
-                    </Button>
-                </DialogActions>
-            </Dialog>
             <ToastContainer />
         </div>
     );
