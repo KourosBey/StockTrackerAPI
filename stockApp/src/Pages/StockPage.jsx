@@ -46,7 +46,7 @@ const StockPage = () => {
                 toast.success('Stoklar başarıyla getirildi.');
                 const processedData = response.data.map(item => ({
                     id: item.id,
-                    name: item.stockName || item.StockName || 'No Name',
+                    name: item.stockName || item.StockName || item.Stockname || 'No Name',
                     barcode: item.stockBarcode || item.StockBarcode || 'N/A',
                     code: item.stockCode || 'N/A',
                     description: item.stockDescription || 'No Description',
@@ -108,24 +108,54 @@ const StockPage = () => {
 
     const handleEditStockChange = (e) => {
         const { name, value } = e.target;
-        setEditStock({ ...editStock, [name]: value });
+        setEditStock((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
     };
 
+
     const handleEditStockSubmit = async () => {
+        const stockToUpdate = {
+            id: editStock.id, // Backend'in zorunlu ID alanı
+            stockName: editStock.name, // Güncellenen isim
+            stockBarcode: editStock.barcode,
+            stockCode: editStock.code,
+            stockDescription: editStock.description,
+            stockAmount: parseInt(editStock.amount, 10), // Sayıya dönüştürme
+            stockPrice: parseInt(editStock.salePrices), // Sayıya dönüştürme
+            createdTime: editStock.createdTime || new Date().toISOString(), // Eksikse mevcut zaman
+        };
+
         try {
-            await StockService.updateStock(editStock.id, editStock);
-            setStocks((prevStocks) =>
-                prevStocks.map((stock) =>
-                    stock.id === editStock.id ? editStock : stock
-                )
-            );
-            toast.success('Stok başarıyla güncellendi!');
-            handleEditStockClose();
+            console.log("Gönderilen güncelleme isteği:", stockToUpdate); // DEBUG
+
+            const response = await StockService.updateStock(stockToUpdate.id, stockToUpdate);
+
+            console.log("Backend'den dönen yanıt:", response); // DEBUG
+
+            if (response.isSuccess) {
+                // Eğer backend yanıtı başarılıysa, state'i güncelle
+                setStocks((prevStocks) =>
+                    prevStocks.map((stock) =>
+                        stock.id === stockToUpdate.id
+                            ? { ...stock, ...stockToUpdate } // Güncellenen ürünü ekle
+                            : stock // Diğerlerini koru
+                    )
+                );
+
+                toast.success('Stok başarıyla güncellendi!');
+                handleEditStockClose();
+            } else {
+                toast.error('Güncelleme başarısız: ' + (response.message || 'Hata mesajı yok.'));
+            }
         } catch (error) {
-            console.error('Stok güncellenirken hata oluştu:', error);
+            console.error('Stok güncellenirken hata oluştu:', error.response?.data || error.message);
             toast.error('Stok güncellenirken bir hata oluştu.');
         }
     };
+
+
 
     const handleAddStockChange = (e) => {
         const { name, value } = e.target;
@@ -133,25 +163,44 @@ const StockPage = () => {
     };
 
     const handleAddStockSubmit = async () => {
+        // Backend'in beklediği veri formatına uygun bir nesne oluşturuyoruz
         const stockToAdd = {
             stockName: newStock.stockName,
             stockBarcode: newStock.stockBarcode,
             stockCode: newStock.stockCode,
             stockDescription: newStock.stockDescription,
-            stockAmount: parseInt(newStock.stockAmount, 10),
-            stockPrice: parseFloat(newStock.stockPrice),
+            stockAmount: parseInt(newStock.stockAmount, 10), // String'den sayıya çeviriyoruz
+            stockPrice: parseFloat(newStock.stockPrice), // String'den ondalıklı sayıya çeviriyoruz
         };
 
         try {
-            await StockService.addNewStock(stockToAdd);
-            toast.success('Yeni stok başarıyla eklendi!');
-            fetchStocks();
-            handleAddStockClose();
+            console.log('Gönderilen yeni stok:', stockToAdd); // DEBUG: Gönderilen veri
+
+            // Backend API'ye yeni stok ekleme isteği gönderiliyor
+            const response = await StockService.addNewStock(stockToAdd);
+
+            console.log('Backend yanıtı:', response); // DEBUG: Backend'den dönen yanıtı logluyoruz
+
+            // Eğer backend başarılı bir yanıt döndüyse
+            if (response.isSuccess) {
+                toast.success('Yeni stok başarıyla eklendi!');
+
+                // Yeni verileri backend'den tekrar çekiyoruz
+                await fetchStocks();
+
+                // Formu kapatıyoruz ve sıfırlıyoruz
+                handleAddStockClose();
+            } else {
+                // Backend'den gelen hata mesajını ekrana yazdırıyoruz
+                toast.error('Stok ekleme başarısız: ' + (response.message || 'Hata mesajı yok.'));
+            }
         } catch (error) {
-            console.error('Yeni stok eklenirken hata oluştu:', error);
+            // İstek sırasında oluşabilecek tüm hataları burada yakalıyoruz
+            console.error('Yeni stok eklenirken hata oluştu:', error.response?.data || error.message);
             toast.error('Yeni stok eklenirken bir hata oluştu.');
         }
     };
+
 
     const hadleDeleteStock = async (stockId) => {
         if (!window.confirm('Ürünü silmek istediğinize emin misiniz?')) {
@@ -214,11 +263,12 @@ const StockPage = () => {
 
         try {
             await StockService.updateStock(sellStock.stock_id, updatedStock);
-            setStocks(prevStocks =>
-                prevStocks.map(stock =>
-                    stock.id === updatedStock.id ? updatedStock : stock
+            setStocks((prevStocks) =>
+                prevStocks.map((stock) =>
+                    stock.id === stockToUpdate.id ? { ...stock, ...stockToUpdate } : stock
                 )
             );
+
             alert('Stok başarıyla güncellendi.');
             handleSellStockClose();
         } catch (error) {

@@ -33,14 +33,14 @@ class StockService {
 
     async updateStock(stockId, updatedStock) {
         try {
-            // updatedStock nesnesinden id'yi kaldırarak gönderiyoruz.
-            const { id, ...stockData } = updatedStock;
+            // updatedStock nesnesini direkt olarak gönderiyoruz
+            const response = await axios.put(`${this.BASE_URL}/Stock/update-stock`, updatedStock);
 
-            const response = await axios.put(`${this.BASE_URL}/Stock/update-stock`, stockData);
-            return response.data;
+            console.log('Backend yanıtı:', response.data); // DEBUG: Backend'den dönen yanıtı loglayın
+            return response.data; // Backend'den gelen yanıtı döndür
         } catch (error) {
             console.error('Stok güncellenirken hata oluştu:', error.response?.data || error.message);
-            throw error;
+            throw error; // Hata fırlat
         }
     }
 
