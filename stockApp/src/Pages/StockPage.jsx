@@ -133,7 +133,7 @@ const StockPage = () => {
     };
 
     const handleAddStockSubmit = async () => {
-        const stockToAdd = {
+        var stockToAdd = {
             stockName: newStock.stockName,
             stockBarcode: newStock.stockBarcode,
             stockCode: newStock.stockCode,
